@@ -6,6 +6,7 @@ import (
 	"image/color"
 	"image/png"
 	"log"
+	"math/cmplx"
 	"os"
 	"runtime"
 	"runtime/pprof"
@@ -14,13 +15,9 @@ import (
 
 // Configuration
 const (
-	// Position and height
-	px = -0.5557506
-	py = -0.55560
-	ph = 0.000000001
-	//px = -2
-	//py = -1.2
-	//ph = 2.5
+	xCenter = -0.75
+	yCenter =  0
+	zoom = 1
 
 	// Quality
 	imgWidth     = 1024
@@ -78,9 +75,9 @@ func render(img *image.RGBA) {
 				for x := 0; x < imgWidth; x++ {
 					var r, g, b int
 					for i := 0; i < samples; i++ {
-						nx := ph * ratio * ((float64(x) + RandFloat64()) / float64(imgWidth)) + px
-						ny := ph * ((float64(y) + RandFloat64()) / float64(imgHeight)) + py
-						c := paint(mandelbrotIter(nx, ny, maxIter))
+						nx := 3*(1/zoom)*ratio*((float64(x)+RandFloat64())/float64(imgWidth)-0.5) + xCenter
+						ny := 3*(1/zoom)*((float64(y)+RandFloat64())/float64(imgHeight)-0.5) - yCenter
+						c := paint(mandelbrotIterComplex(nx, ny, maxIter))
 						if linearMixing {
 							r += int(RGBToLinear(c.R))
 							g += int(RGBToLinear(c.G))
@@ -128,34 +125,18 @@ func paint(r float64, n int) color.RGBA {
 	return insideSet
 }
 
-func mandelbrotIter(px, py float64, maxIter int) (float64, int) {
-	var x, y, xx, yy, xy float64
+func mandelbrotIterComplex(px, py float64, maxIter int) (float64, int) {
+	var current complex128
+	pxpy := complex(px, py)
 
 	for i := 0; i < maxIter; i++ {
-		xx, yy, xy = x * x, y * y, x * y
-		if xx + yy > 4 {
-			return xx + yy, i
+		magnitude := cmplx.Abs(current)
+		if magnitude > 2 {
+			return magnitude * magnitude, i
 		}
-		x = xx - yy + px
-		y = 2 * xy + py
+		current = current * current + pxpy
 	}
 
-	return xx + yy, maxIter
+	magnitude := cmplx.Abs(current)
+	return magnitude * magnitude, maxIter
 }
-
-// by u/Boraini
-//func mandelbrotIterComplex(px, py float64, maxIter int) (float64, int) {
-//	var current complex128
-//	pxpy := complex(px, py)
-//
-//	for i := 0; i < maxIter; i++ {
-//		magnitude := cmplx.Abs(current)
-//		if magnitude > 2 {
-//			return magnitude * magnitude, i
-//		}
-//		current = current * current + pxpy
-//	}
-//
-//	magnitude := cmplx.Abs(current)
-//	return magnitude * magnitude, maxIter
-//}

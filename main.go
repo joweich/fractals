@@ -8,6 +8,7 @@ import (
 	"image/png"
 	"io/ioutil"
 	"log"
+	"math"
 	"math/cmplx"
 	"os"
 	"runtime"
@@ -23,7 +24,9 @@ const (
 	imgHeight    = 1024
 	maxIter      = 1500
 	samples      = 50
+	hueOffset 	 = 0.0 // hsl color model; float in range [0,1)
 	linearMixing = true
+	insideSetBlack = true
 
 	showProgress = true
 	profileCpu   = false
@@ -64,7 +67,8 @@ func main() {
 		render(img, loc)
 
 		log.Println("Encoding image ", index+1)
-		f, err := os.Create(strconv.FormatFloat(loc.Zoom, 'f', -1, 64) + "x_" + strconv.Itoa(index) + ".png")
+		filename := "zoom" + strconv.FormatFloat(loc.Zoom, 'e', -1, 64) + "-iter" + strconv.Itoa(maxIter) + "-index" + strconv.Itoa(index+1)
+		f, err := os.Create(filename + ".png")
 		if err != nil {
 			panic(err)
 		}
@@ -136,14 +140,17 @@ func render(img *image.RGBA, loc location) {
 	}
 }
 
-func paint(r float64, n int) color.RGBA {
-	insideSet := color.RGBA{ R: 255, G: 255, B: 255, A: 255 }
-
-	if r > 4 {
-		return hslToRGB(float64(n) / 800 * r, 1, 0.5)
+func paint(magnitude float64, n int) color.RGBA {
+	if magnitude > 2 {
+			// adapted http://linas.org/art-gallery/escape/escape.html
+			nu := math.Log(math.Log(magnitude)) / math.Log(2)
+			hue := (float64(n)+1-nu)/float64(maxIter) + hueOffset
+			return hslToRGB(hue, 1, 0.5)
+	} else if insideSetBlack {
+			return color.RGBA{R: 0, G: 0, B: 0, A: 255}
+	} else {
+			return color.RGBA{R: 255, G: 255, B: 255, A: 255}
 	}
-
-	return insideSet
 }
 
 func mandelbrotIterComplex(px, py float64, maxIter int) (float64, int) {
@@ -153,11 +160,11 @@ func mandelbrotIterComplex(px, py float64, maxIter int) (float64, int) {
 	for i := 0; i < maxIter; i++ {
 		magnitude := cmplx.Abs(current)
 		if magnitude > 2 {
-			return magnitude * magnitude, i
+			return magnitude, i
 		}
 		current = current * current + pxpy
 	}
 
 	magnitude := cmplx.Abs(current)
-	return magnitude * magnitude, maxIter
+	return magnitude, maxIter
 }

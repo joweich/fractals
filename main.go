@@ -28,6 +28,7 @@ const (
 	linearMixing = true
 	insideSetBlack = true
 
+	scrapeLocations = false
 	showProgress = true
 	profileCpu   = false
 )
@@ -36,28 +37,33 @@ const (
 	ratio = float64(imgWidth) / float64(imgHeight)
 )
 
-type location struct{
-	XCenter float64
-	YCenter float64
-	Zoom   float64
-}
-
-type locationsFile struct {
-	Locations []location
-}
-
 func main() {
-	// locations from http://www.cuug.ab.ca/dewara/mandelbrot/images.html
+	if scrapeLocations {
+		scrapeLocationsToJSON()
+	}
+	
 	log.Println("Reading location data...")
 	file, err := ioutil.ReadFile("locations.json")
     if err != nil {
       panic(err)
 	}
 
-	locs := locationsFile{}
+	locs := LocationsFile{}
 	_ = json.Unmarshal([]byte(file), &locs)
+
+	zoom1Fractal := Location{
+		XCenter: -0.75,
+		YCenter: 0,
+		Zoom: 1,
+	}
+	locs.Locations = append(locs.Locations, zoom1Fractal)
+
 	log.Printf("Found %v locations.", len(locs.Locations))
-	
+
+	if _, err := os.Stat("results"); os.IsNotExist(err) {
+		os.Mkdir("results", 0755)
+	}
+
 	start := time.Now()
 
     for index, loc := range locs.Locations { 
@@ -67,7 +73,7 @@ func main() {
 		render(img, loc)
 
 		log.Println("Encoding image ", index+1)
-		filename := "zoom" + strconv.FormatFloat(loc.Zoom, 'e', -1, 64) + "-iter" + strconv.Itoa(maxIter) + "-index" + strconv.Itoa(index+1)
+		filename := "results/zoom" + strconv.FormatFloat(loc.Zoom, 'e', -1, 64) + "-iter" + strconv.Itoa(maxIter) + "-index" + strconv.Itoa(index+1)
 		f, err := os.Create(filename + ".png")
 		if err != nil {
 			panic(err)
@@ -82,7 +88,7 @@ func main() {
 	log.Println("Done in", end.Sub(start))
 }
 
-func render(img *image.RGBA, loc location) {
+func render(img *image.RGBA, loc Location) {
 	if profileCpu {
 		f, err := os.Create("profile.prof")
 		if err != nil {

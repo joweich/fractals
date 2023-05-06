@@ -6,7 +6,6 @@ import (
 	"image"
 	"image/color"
 	"image/png"
-	"io/ioutil"
 	"log"
 	"math"
 	"math/cmplx"
@@ -20,17 +19,17 @@ import (
 // Configuration
 const (
 	// Quality
-	imgWidth     = 1024
-	imgHeight    = 1024
-	maxIter      = 1500
-	samples      = 50
-	hueOffset 	 = 0.0 // hsl color model; float in range [0,1)
-	linearMixing = true
+	imgWidth       = 1024
+	imgHeight      = 1024
+	maxIter        = 1500
+	samples        = 50
+	hueOffset      = 0.0 // hsl color model; float in range [0,1)
+	linearMixing   = true
 	insideSetBlack = true
 
 	scrapeLocations = false
-	showProgress = true
-	profileCpu   = false
+	showProgress    = true
+	profileCpu      = false
 )
 
 const (
@@ -41,11 +40,11 @@ func main() {
 	if scrapeLocations {
 		scrapeLocationsToJSON()
 	}
-	
+
 	log.Println("Reading location data...")
-	file, err := ioutil.ReadFile("locations.json")
-    if err != nil {
-      panic(err)
+	file, err := os.ReadFile("locations.json")
+	if err != nil {
+		panic(err)
 	}
 
 	locs := LocationsFile{}
@@ -54,7 +53,7 @@ func main() {
 	zoom1Fractal := Location{
 		XCenter: -0.75,
 		YCenter: 0,
-		Zoom: 1,
+		Zoom:    1,
 	}
 	locs.Locations = append(locs.Locations, zoom1Fractal)
 
@@ -66,7 +65,7 @@ func main() {
 
 	start := time.Now()
 
-    for index, loc := range locs.Locations { 
+	for index, loc := range locs.Locations {
 
 		log.Println("Allocating and rendering image ", index+1)
 		img := image.NewRGBA(image.Rect(0, 0, imgWidth, imgHeight))
@@ -83,7 +82,7 @@ func main() {
 			panic(err)
 		}
 	}
-	
+
 	end := time.Now()
 	log.Println("Done in", end.Sub(start))
 }
@@ -101,7 +100,7 @@ func render(img *image.RGBA, loc Location) {
 	jobs := make(chan int)
 
 	for i := 0; i < runtime.NumCPU(); i++ {
-		go func () {
+		go func() {
 			for y := range jobs {
 				for x := 0; x < imgWidth; x++ {
 					var r, g, b int
@@ -129,7 +128,7 @@ func render(img *image.RGBA, loc Location) {
 						cg = uint8(float64(g) / float64(samples))
 						cb = uint8(float64(b) / float64(samples))
 					}
-					img.SetRGBA(x, y, color.RGBA{ R: cr, G: cg, B: cb, A: 255 })
+					img.SetRGBA(x, y, color.RGBA{R: cr, G: cg, B: cb, A: 255})
 				}
 			}
 		}()
@@ -138,7 +137,7 @@ func render(img *image.RGBA, loc Location) {
 	for y := 0; y < imgHeight; y++ {
 		jobs <- y
 		if showProgress {
-			fmt.Printf("\r%d/%d (%d%%)", y, imgHeight, int(100*(float64(y) / float64(imgHeight))))
+			fmt.Printf("\r%d/%d (%d%%)", y, imgHeight, int(100*(float64(y)/float64(imgHeight))))
 		}
 	}
 	if showProgress {
@@ -148,14 +147,14 @@ func render(img *image.RGBA, loc Location) {
 
 func paint(magnitude float64, n int) color.RGBA {
 	if magnitude > 2 {
-			// adapted http://linas.org/art-gallery/escape/escape.html
-			nu := math.Log(math.Log(magnitude)) / math.Log(2)
-			hue := (float64(n)+1-nu)/float64(maxIter) + hueOffset
-			return hslToRGB(hue, 1, 0.5)
+		// adapted http://linas.org/art-gallery/escape/escape.html
+		nu := math.Log(math.Log(magnitude)) / math.Log(2)
+		hue := (float64(n)+1-nu)/float64(maxIter) + hueOffset
+		return hslToRGB(hue, 1, 0.5)
 	} else if insideSetBlack {
-			return color.RGBA{R: 0, G: 0, B: 0, A: 255}
+		return color.RGBA{R: 0, G: 0, B: 0, A: 255}
 	} else {
-			return color.RGBA{R: 255, G: 255, B: 255, A: 255}
+		return color.RGBA{R: 255, G: 255, B: 255, A: 255}
 	}
 }
 
@@ -168,7 +167,7 @@ func mandelbrotIterComplex(px, py float64, maxIter int) (float64, int) {
 		if magnitude > 2 {
 			return magnitude, i
 		}
-		current = current * current + pxpy
+		current = current*current + pxpy
 	}
 
 	magnitude := cmplx.Abs(current)

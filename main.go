@@ -24,9 +24,6 @@ const (
 	hueOffset      = 0.0 // hsl color model; float in range [0,1)
 	linearMixing   = true
 	insideSetBlack = true
-
-	scrapeLocations = false
-	showProgress    = true
 )
 
 const (
@@ -34,10 +31,6 @@ const (
 )
 
 func main() {
-	if scrapeLocations {
-		scrapeLocationsToJSON()
-	}
-
 	log.Println("Reading location data...")
 	file, err := os.ReadFile("locations.json")
 	if err != nil {
@@ -119,13 +112,9 @@ func render(img *image.RGBA, loc Location) {
 
 	for y := 0; y < imgHeight; y++ {
 		jobs <- y
-		if showProgress {
-			fmt.Printf("\r%d/%d (%d%%)", y, imgHeight, int(100*(float64(y)/float64(imgHeight))))
-		}
+		fmt.Printf("\r%d/%d (%d%%)", y, imgHeight, int(100*(float64(y)/float64(imgHeight))))
 	}
-	if showProgress {
-		fmt.Printf("\r%d/%[1]d (100%%)\n", imgHeight)
-	}
+	fmt.Printf("\r%d/%[1]d (100%%)\n", imgHeight)
 }
 
 func paint(magnitude float64, n int) color.RGBA {

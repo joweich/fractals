@@ -11,9 +11,7 @@ import (
 	"math/cmplx"
 	"os"
 	"runtime"
-	"runtime/pprof"
 	"strconv"
-	"time"
 )
 
 // Configuration
@@ -29,7 +27,6 @@ const (
 
 	scrapeLocations = false
 	showProgress    = true
-	profileCpu      = false
 )
 
 const (
@@ -63,8 +60,6 @@ func main() {
 		os.Mkdir("results", 0755)
 	}
 
-	start := time.Now()
-
 	for index, loc := range locs.Locations {
 
 		log.Println("Allocating and rendering image ", index+1)
@@ -82,21 +77,9 @@ func main() {
 			panic(err)
 		}
 	}
-
-	end := time.Now()
-	log.Println("Done in", end.Sub(start))
 }
 
 func render(img *image.RGBA, loc Location) {
-	if profileCpu {
-		f, err := os.Create("profile.prof")
-		if err != nil {
-			panic(err)
-		}
-		pprof.StartCPUProfile(f)
-		defer pprof.StopCPUProfile()
-	}
-
 	jobs := make(chan int)
 
 	for i := 0; i < runtime.NumCPU(); i++ {

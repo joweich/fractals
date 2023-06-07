@@ -67,52 +67,65 @@ func generateIagesFromLocations(locs LocationsFile) {
 }
 
 func renderImage(img *image.RGBA, loc Location) {
-	imgWidth := img.Rect.Max.X
-	imgHeight := img.Rect.Max.Y
-	ratio := float64(imgWidth) / float64(imgHeight)
-
 	jobs := make(chan int)
 
 	for i := 0; i < runtime.NumCPU(); i++ {
 		go func() {
 			for y := range jobs {
-				for x := 0; x < imgWidth; x++ {
-					var r, g, b int
-					for i := 0; i < imgConf.Samples; i++ {
-						nx := 3*(1/loc.Zoom)*ratio*((float64(x)+RandFloat64())/float64(imgWidth)-0.5) + loc.XCenter
-						ny := 3*(1/loc.Zoom)*((float64(y)+RandFloat64())/float64(imgHeight)-0.5) - loc.YCenter
-						c := paint(mandelbrotIterComplex(nx, ny))
-						if imgConf.Mixing {
-							r += int(RGBToLinear(c.R))
-							g += int(RGBToLinear(c.G))
-							b += int(RGBToLinear(c.B))
-						} else {
-							r += int(c.R)
-							g += int(c.G)
-							b += int(c.B)
-						}
-					}
-					var cr, cg, cb uint8
-					if imgConf.Mixing {
-						cr = LinearToRGB(uint16(float64(r) / float64(imgConf.Samples)))
-						cg = LinearToRGB(uint16(float64(g) / float64(imgConf.Samples)))
-						cb = LinearToRGB(uint16(float64(b) / float64(imgConf.Samples)))
-					} else {
-						cr = uint8(float64(r) / float64(imgConf.Samples))
-						cg = uint8(float64(g) / float64(imgConf.Samples))
-						cb = uint8(float64(b) / float64(imgConf.Samples))
-					}
-					img.SetRGBA(x, y, color.RGBA{R: cr, G: cg, B: cb, A: 255})
-				}
+				renderRow(loc, y, img)
 			}
 		}()
 	}
 
-	for y := 0; y < imgHeight; y++ {
+	for y := 0; y < imgConf.Height; y++ {
 		jobs <- y
-		fmt.Printf("\r%d/%d (%d%%)", y, imgHeight, int(100*(float64(y)/float64(imgHeight))))
+		fmt.Printf("\r%d/%d (%d%%)", y, imgConf.Height, int(100*(float64(y)/float64(imgConf.Height))))
 	}
-	fmt.Printf("\r%d/%[1]d (100%%)\n", imgHeight)
+	fmt.Printf("\r%d/%[1]d (100%%)\n", imgConf.Height)
+}
+
+func renderRow(loc Location, y int, img *image.RGBA) {
+	ratio := float64(imgConf.Width) / float64(imgConf.Height)
+	for x := 0; x < imgConf.Width; x++ {
+		r, g, b := samplePixel(loc, ratio, x, y)
+		cr, cg, cb := normalizeSampledPixel(r, g, b)
+		img.SetRGBA(x, y, color.RGBA{R: cr, G: cg, B: cb, A: 255})
+	}
+}
+
+func samplePixel(loc Location, ratio float64, x int, y int) (int, int, int) {
+	var r, g, b int
+	for i := 0; i < imgConf.Samples; i++ {
+		nx := (1/loc.Zoom)*ratio*((float64(x)+RandFloat64())/float64(imgConf.Width)-0.5) + loc.XCenter
+		ny := (1/loc.Zoom)*((float64(y)+RandFloat64())/float64(imgConf.Height)-0.5) - loc.YCenter
+
+		c := paint(mandelbrotIterComplex(nx, ny))
+
+		if imgConf.Mixing {
+			r += int(RGBToLinear(c.R))
+			g += int(RGBToLinear(c.G))
+			b += int(RGBToLinear(c.B))
+		} else {
+			r += int(c.R)
+			g += int(c.G)
+			b += int(c.B)
+		}
+	}
+	return r, g, b
+}
+
+func normalizeSampledPixel(r int, g int, b int) (uint8, uint8, uint8) {
+	var cr, cg, cb uint8
+	if imgConf.Mixing {
+		cr = LinearToRGB(uint16(float64(r) / float64(imgConf.Samples)))
+		cg = LinearToRGB(uint16(float64(g) / float64(imgConf.Samples)))
+		cb = LinearToRGB(uint16(float64(b) / float64(imgConf.Samples)))
+	} else {
+		cr = uint8(float64(r) / float64(imgConf.Samples))
+		cg = uint8(float64(g) / float64(imgConf.Samples))
+		cb = uint8(float64(b) / float64(imgConf.Samples))
+	}
+	return cr, cg, cb
 }
 
 func paint(magnitude float64, iterations int) color.RGBA {

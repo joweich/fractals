@@ -9,3 +9,13 @@ type Location struct {
 type LocationsFile struct {
 	Locations []Location
 }
+
+type ImageConfig struct {
+	Width       int
+	Height      int
+	Samples     int
+	MaxIter     int
+	HueOffset   float64
+	Mixing      bool
+	InsideBlack bool
+}

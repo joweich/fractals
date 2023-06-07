@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"image"
@@ -26,36 +25,19 @@ func main() {
 
 	flag.Parse()
 
-	log.Println("Reading location data...")
-	file, err := os.ReadFile("locations.json")
-	if err != nil {
-		panic(err)
-	}
+	locs := getLocations()
 
-	locs := LocationsFile{}
-	_ = json.Unmarshal([]byte(file), &locs)
-
-	zoom1Fractal := Location{
-		XCenter: -0.75,
-		YCenter: 0,
-		Zoom:    1,
-	}
-	locs.Locations = append(locs.Locations, zoom1Fractal)
-
-	log.Printf("Found %v locations.", len(locs.Locations))
-
-	if _, err := os.Stat("results"); os.IsNotExist(err) {
-		os.Mkdir("results", 0755)
+	if _, err := os.Stat("results/" + strconv.Itoa(*maxIterPtr)); os.IsNotExist(err) {
+		os.Mkdir("results/"+strconv.Itoa(*maxIterPtr), 0755)
 	}
 
 	for index, loc := range locs.Locations {
-
 		log.Println("Allocating and rendering image ", index+1)
 		img := image.NewRGBA(image.Rect(0, 0, *imgWidthPtr, *imgHeightPtr))
 		render(img, loc, *samplesPtr, *maxIterPtr, *hueOffsetPtr, *mixingPtr, *insideBlackPtr)
 
 		log.Println("Encoding image ", index+1)
-		filename := "results/zoom" + strconv.FormatFloat(loc.Zoom, 'e', -1, 64) + "-iter" + strconv.Itoa(*maxIterPtr) + "-index" + strconv.Itoa(index+1)
+		filename := "results/" + strconv.Itoa(*maxIterPtr) + "/" + strconv.Itoa(index+1) + strconv.FormatFloat(*hueOffsetPtr, 'b', -1, 64)
 		f, err := os.Create(filename + ".png")
 		if err != nil {
 			panic(err)

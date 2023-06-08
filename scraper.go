@@ -1,20 +1,50 @@
 package main
 
-// locations from http://www.cuug.ab.ca/dewara/mandelbrot/images.html
+/*
+Locations from http://www.cuug.ab.ca/dewara/mandelbrot/images.html.
+NOTE: As of 2023, the webpage seems to be offline. The scrapper is thus deprecated.
+Please use the locations.json in the repo.
+*/
 
 import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
 
 	"golang.org/x/net/html"
 )
+
+func getLocations() LocationsFile {
+	log.Println("Reading location data...")
+	file, err := os.ReadFile("locations.json")
+	if err != nil {
+		if os.IsNotExist(err) {
+			scrapeLocationsToJSON()
+			file, _ = os.ReadFile("locations.json")
+		} else {
+			panic(err)
+		}
+	}
+
+	locs := LocationsFile{}
+	_ = json.Unmarshal([]byte(file), &locs)
+
+	zoom1Fractal := Location{
+		XCenter: -0.75,
+		YCenter: 0,
+		Zoom:    1,
+	}
+	locs.Locations = append(locs.Locations, zoom1Fractal)
+
+	log.Printf("Found %v locations.", len(locs.Locations))
+	return locs
+}
 
 func scrapeLocationsToJSON() {
 	client := &http.Client{
@@ -36,7 +66,7 @@ func scrapeLocationsToJSON() {
 	if err != nil {
 		fmt.Println(err)
 	} else {
-		_ = ioutil.WriteFile("locations.json", res, 0644)
+		_ = os.WriteFile("locations.json", res, 0644)
 	}
 	log.Println("Scraping location data successfull.")
 }

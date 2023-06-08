@@ -7,8 +7,6 @@ import (
 	"image/color"
 	"image/png"
 	"log"
-	"math"
-	"math/cmplx"
 	"os"
 	"runtime"
 	"strconv"
@@ -85,21 +83,16 @@ func renderImage(img *image.RGBA, loc Location) {
 }
 
 func renderRow(loc Location, y int, img *image.RGBA) {
-	ratio := float64(imgConf.Width) / float64(imgConf.Height)
 	for x := 0; x < imgConf.Width; x++ {
-		r, g, b := samplePixel(loc, ratio, x, y)
-		cr, cg, cb := normalizeSampledPixel(r, g, b)
+		cr, cg, cb := getColorForPixel(loc, x, y)
 		img.SetRGBA(x, y, color.RGBA{R: cr, G: cg, B: cb, A: 255})
 	}
 }
 
-func samplePixel(loc Location, ratio float64, x int, y int) (int, int, int) {
+func getColorForPixel(loc Location, x int, y int) (uint8, uint8, uint8) {
 	var r, g, b int
 	for i := 0; i < imgConf.Samples; i++ {
-		nx := (1/loc.Zoom)*ratio*((float64(x)+RandFloat64())/float64(imgConf.Width)-0.5) + loc.XCenter
-		ny := (1/loc.Zoom)*((float64(y)+RandFloat64())/float64(imgConf.Height)-0.5) - loc.YCenter
-
-		c := paint(mandelbrotIterComplex(nx, ny))
+		c := getColorForComplexNr(convertPixelToComplexNr(loc, x, y))
 
 		if imgConf.Mixing {
 			r += int(RGBToLinear(c.R))
@@ -111,10 +104,7 @@ func samplePixel(loc Location, ratio float64, x int, y int) (int, int, int) {
 			b += int(c.B)
 		}
 	}
-	return r, g, b
-}
 
-func normalizeSampledPixel(r int, g int, b int) (uint8, uint8, uint8) {
 	var cr, cg, cb uint8
 	if imgConf.Mixing {
 		cr = LinearToRGB(uint16(float64(r) / float64(imgConf.Samples)))
@@ -128,31 +118,11 @@ func normalizeSampledPixel(r int, g int, b int) (uint8, uint8, uint8) {
 	return cr, cg, cb
 }
 
-func paint(magnitude float64, iterations int) color.RGBA {
-	if magnitude > 2 {
-		// adapted http://linas.org/art-gallery/escape/escape.html
-		nu := math.Log(math.Log(magnitude)) / math.Log(2)
-		hue := (float64(iterations)+1-nu)/float64(iterations) + imgConf.HueOffset
-		return hslToRGB(hue, 1, 0.5)
-	} else if imgConf.InsideBlack {
-		return color.RGBA{R: 0, G: 0, B: 0, A: 255}
-	} else {
-		return color.RGBA{R: 255, G: 255, B: 255, A: 255}
-	}
-}
+func convertPixelToComplexNr(loc Location, x int, y int) complex128 {
+	ratio := float64(imgConf.Width) / float64(imgConf.Height)
 
-func mandelbrotIterComplex(px, py float64) (float64, int) {
-	var current complex128
-	pxpy := complex(px, py)
-
-	for i := 0; i < imgConf.MaxIter; i++ {
-		magnitude := cmplx.Abs(current)
-		if magnitude > 2 {
-			return magnitude, i
-		}
-		current = current*current + pxpy
-	}
-
-	magnitude := cmplx.Abs(current)
-	return magnitude, imgConf.MaxIter
+	// RandFload64() is added for anti-aliasing
+	nx := (1/loc.Zoom)*ratio*((float64(x)+RandFloat64())/float64(imgConf.Width)-0.5) + loc.XCenter
+	ny := (1/loc.Zoom)*((float64(y)+RandFloat64())/float64(imgConf.Height)-0.5) - loc.YCenter
+	return complex(nx, ny)
 }

@@ -18,4 +18,5 @@ type ImageConfig struct {
 	HueOffset   float64
 	Mixing      bool
 	InsideBlack bool
+	RndGlobal 	uint64
 }

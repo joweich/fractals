@@ -10,6 +10,7 @@ import (
 	"os"
 	"runtime"
 	"strconv"
+	"time"
 )
 
 var imgConf ImageConfig
@@ -38,6 +39,7 @@ func parseImageConfigArgs() {
 		HueOffset:   *hueOffsetPtr,
 		Mixing:      *mixingPtr,
 		InsideBlack: *insideBlackPtr,
+		RndGlobal:	 uint64(time.Now().UnixNano()),
 	}
 }
 
@@ -68,9 +70,10 @@ func renderImage(img *image.RGBA, loc Location) {
 	jobs := make(chan int)
 
 	for i := 0; i < runtime.NumCPU(); i++ {
+		rndLocal := RandUint64(&imgConf.RndGlobal)
 		go func() {
 			for y := range jobs {
-				renderRow(loc, y, img)
+				renderRow(loc, y, img, &rndLocal)
 			}
 		}()
 	}
@@ -82,17 +85,17 @@ func renderImage(img *image.RGBA, loc Location) {
 	fmt.Printf("\r%d/%[1]d (100%%)\n", imgConf.Height)
 }
 
-func renderRow(loc Location, y int, img *image.RGBA) {
+func renderRow(loc Location, y int, img *image.RGBA, rndLocal *uint64) {
 	for x := 0; x < imgConf.Width; x++ {
-		cr, cg, cb := getColorForPixel(loc, x, y)
+		cr, cg, cb := getColorForPixel(loc, x, y, rndLocal)
 		img.SetRGBA(x, y, color.RGBA{R: cr, G: cg, B: cb, A: 255})
 	}
 }
 
-func getColorForPixel(loc Location, x int, y int) (uint8, uint8, uint8) {
+func getColorForPixel(loc Location, x int, y int, rndLocal *uint64) (uint8, uint8, uint8) {
 	var r, g, b int
 	for i := 0; i < imgConf.Samples; i++ {
-		c := getColorForComplexNr(convertPixelToComplexNr(loc, x, y))
+		c := getColorForComplexNr(convertPixelToComplexNr(loc, x, y, rndLocal))
 
 		if imgConf.Mixing {
 			r += int(RGBToLinear(c.R))
@@ -118,11 +121,11 @@ func getColorForPixel(loc Location, x int, y int) (uint8, uint8, uint8) {
 	return cr, cg, cb
 }
 
-func convertPixelToComplexNr(loc Location, x int, y int) complex128 {
+func convertPixelToComplexNr(loc Location, x int, y int, rndLocal *uint64) complex128 {
 	ratio := float64(imgConf.Width) / float64(imgConf.Height)
 
 	// RandFload64() is added for anti-aliasing
-	nx := (1/loc.Zoom)*ratio*((float64(x)+RandFloat64())/float64(imgConf.Width)-0.5) + loc.XCenter
-	ny := (1/loc.Zoom)*((float64(y)+RandFloat64())/float64(imgConf.Height)-0.5) - loc.YCenter
+	nx := (1/loc.Zoom)*ratio*((float64(x)+RandFloat64(rndLocal))/float64(imgConf.Width)-0.5) + loc.XCenter
+	ny := (1/loc.Zoom)*((float64(y)+RandFloat64(rndLocal))/float64(imgConf.Height)-0.5) - loc.YCenter
 	return complex(nx, ny)
 }

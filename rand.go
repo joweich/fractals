@@ -1,18 +1,14 @@
 package main
 
-import (
-	"time"
-)
-
-// xorshift random
-
-var randState = uint64(time.Now().UnixNano())
-
-func RandUint64() uint64 {
-	randState = ((randState ^ (randState << 13)) ^ (randState >> 7)) ^ (randState << 17)
-	return randState
+func RandUint64(rng *uint64) uint64 {
+	*rng = *rng*0x3243f6a8885a308d + 1
+	r := *rng
+	r ^= r >> 32
+	r *= 1111111111111111111
+	r ^= r >> 32
+	return r
 }
 
-func RandFloat64() float64 {
-	return float64(RandUint64() / 2) / (1 << 63)
+func RandFloat64(rng *uint64) float64 {
+	return float64(RandUint64(rng)/2) / (1 << 63)
 }

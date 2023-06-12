@@ -45,7 +45,7 @@ func parseImageConfigArgs() {
 
 func generateIagesFromLocations(locs LocationsFile) {
 	if _, err := os.Stat("results/" + strconv.Itoa(imgConf.MaxIter)); os.IsNotExist(err) {
-		os.Mkdir("results/"+strconv.Itoa(imgConf.MaxIter), 0755)
+		os.MkdirAll("results/"+strconv.Itoa(imgConf.MaxIter), 0755)
 	}
 
 	for index, loc := range locs.Locations {

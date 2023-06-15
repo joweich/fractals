@@ -39,7 +39,7 @@ func parseImageConfigArgs() {
 		HueOffset:   *hueOffsetPtr,
 		Mixing:      *mixingPtr,
 		InsideBlack: *insideBlackPtr,
-		RndGlobal:	 uint64(time.Now().UnixNano()),
+		RndGlobal:   uint64(time.Now().UnixNano()),
 	}
 }
 

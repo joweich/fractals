@@ -17,7 +17,7 @@ var imgConf ImageConfig
 
 func main() {
 	parseImageConfigArgs()
-	generateIagesFromLocations(getLocations())
+	generateImagesFromLocations(getLocations())
 }
 
 func parseImageConfigArgs() {
@@ -43,7 +43,7 @@ func parseImageConfigArgs() {
 	}
 }
 
-func generateIagesFromLocations(locs LocationsFile) {
+func generateImagesFromLocations(locs LocationsFile) {
 	if _, err := os.Stat("results/" + strconv.Itoa(imgConf.MaxIter)); os.IsNotExist(err) {
 		os.MkdirAll("results/"+strconv.Itoa(imgConf.MaxIter), 0755)
 	}
@@ -124,7 +124,7 @@ func getColorForPixel(loc Location, x int, y int, rndLocal *uint64) (uint8, uint
 func convertPixelToComplexNr(loc Location, x int, y int, rndLocal *uint64) complex128 {
 	ratio := float64(imgConf.Width) / float64(imgConf.Height)
 
-	// RandFload64() is added for anti-aliasing
+	// RandFloat64() is added for anti-aliasing
 	nx := (1/loc.Zoom)*ratio*((float64(x)+RandFloat64(rndLocal))/float64(imgConf.Width)-0.5) + loc.XCenter
 	ny := (1/loc.Zoom)*((float64(y)+RandFloat64(rndLocal))/float64(imgConf.Height)-0.5) - loc.YCenter
 	return complex(nx, ny)

@@ -44,8 +44,11 @@ func parseImageConfigArgs() {
 }
 
 func generateImagesFromLocations(locs LocationsFile) {
-	if _, err := os.Stat("results/" + strconv.Itoa(imgConf.MaxIter)); os.IsNotExist(err) {
-		os.MkdirAll("results/"+strconv.Itoa(imgConf.MaxIter), 0755)
+	dirPath := fmt.Sprintf("results/%d", imgConf.MaxIter)
+	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
+		if err := os.MkdirAll(dirPath, 0755); err != nil {
+			panic(err)
+		}
 	}
 
 	for index, loc := range locs.Locations {

@@ -2,6 +2,8 @@
 
 **fractals** is a customizable renderer for the Mandelbrot set written in Go. It uses Go's **goroutines** to achieve high performance.
 
+### 🚀 Featured in [Golang Weekly #464](https://golangweekly.com/issues/464) 🚀 
+
 ## Usage
 ```sh
 git clone https://github.com/joweich/fractals.git
@@ -40,7 +42,7 @@ $$z_{n+1} = z²_n + z_0$$
 is bounded for all $n ≥ 0$. In other words, $z_0$ is part of the Mandelbrot set if $z_n$ does not approach infinity. This is equivalent to the  magnitude $|z_n| ≤ 2$ for all $n ≥ 0$.
 
 ### But how is this visualized in a colorful image?
-The image is interpreted as complex plane, i.e. the horizontal axis being the real part and the vertical axis reperesenting the complex part of $z_0$. 
+The image is interpreted as complex plane, i.e. the horizontal axis being the real part and the vertical axis representing the complex part of $z_0$. 
 
 The colors are determined by the so-called **naïve escape time algorithm**. It's as simple as that: A pixel is painted in a predefined color (often black) if it's in the set and will have a color if it's not. The color is determined by the number of iterations $n$ needed for $z_n$ to exceed $|z_n| = 2$. This $n$ is the escape time, and $|z_n| ≥ 2$ is the escape condition. In our implementation, this is done via the _hue_ parameter in the [HSL color model](https://en.wikipedia.org/wiki/HSL_and_HSV).
 

@@ -13,9 +13,10 @@ func getColorForComplexNr(z0 complex128) color.RGBA {
 func getColorFromMandelbrot(isUnlimited bool, magnitude float64, iterations int) color.RGBA {
 	if isUnlimited {
 		// adapted http://linas.org/art-gallery/escape/escape.html
-		nu := math.Log(math.Log(magnitude)) / math.Log(2)
-		hue := (float64(iterations)+1-nu)/float64(iterations) + imgConf.HueOffset
-		return hslToRGB(hue, 1, 0.5)
+		smooth := (float64(iterations) + 1 - math.Log(math.Log(magnitude))/math.Log(2)) / float64(imgConf.MaxIter)
+		offset := smooth + imgConf.HueOffset
+		mod := math.Mod(offset, 1)
+		return hslToRGB(mod, 1, 0.5)
 	} else if imgConf.InsideBlack {
 		return color.RGBA{R: 0, G: 0, B: 0, A: 255}
 	} else {

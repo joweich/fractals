@@ -2,7 +2,6 @@ package main
 
 import (
 	"image/color"
-	"math"
 )
 
 // https://axonflux.com/handy-rgb-to-hsl-and-rgb-to-hsv-color-model-c
@@ -27,7 +26,6 @@ func hueToRGB(p, q, t float64) float64 {
 }
 
 func hslToRGB(h, s, l float64) color.RGBA {
-	h = math.Mod(h, 1)
 	var r, g, b float64
 	if s == 0 {
 		r, g, b = l, l, l

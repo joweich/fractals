@@ -15,7 +15,7 @@ type ImageConfig struct {
 	Height      int
 	Samples     int
 	MaxIter     int
-	HueOffset   float64
+	Offset      float64
 	Mixing      bool
 	InsideBlack bool
 	Grayscale   bool

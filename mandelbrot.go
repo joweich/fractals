@@ -14,7 +14,7 @@ func getColorFromMandelbrot(isUnlimited bool, magnitude float64, iterations int)
 	if isUnlimited {
 		// adapted http://linas.org/art-gallery/escape/escape.html
 		smooth := (float64(iterations) + 1 - math.Log(math.Log(magnitude))/math.Log(2)) / float64(imgConf.MaxIter)
-		offset := smooth + imgConf.HueOffset
+		offset := smooth + imgConf.Offset
 		mod := math.Mod(offset, 1)
 		if imgConf.Grayscale {
 			return hslToRGB(0, 0, mod)

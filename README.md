@@ -44,7 +44,7 @@ is bounded for all $n ≥ 0$. In other words, $z_0$ is part of the Mandelbrot se
 ### But how is this visualized in a colorful image?
 The image is interpreted as complex plane, i.e. the horizontal axis being the real part and the vertical axis representing the complex part of $z_0$. 
 
-The colors are determined by the so-called **naïve escape time algorithm**. It's as simple as that: A pixel is painted in a predefined color (often black) if it's in the set and will have a color if it's not. The color is determined by the number of iterations $n$ needed for $z_n$ to exceed $|z_n| = 2$. This $n$ is the escape time, and $|z_n| ≥ 2$ is the escape condition. In our implementation, this is done via the _hue_ parameter in the [HSL color model](https://en.wikipedia.org/wiki/HSL_and_HSV).
+The colors are determined by the so-called **naïve escape time algorithm**. It's as simple as that: A pixel is painted in a predefined color (often black) if it's in the set and will have another color if it's not. The color is determined by the number of iterations $n$ needed for $z_n$ to exceed $|z_n| = 2$. This $n$ is the escape time, and $|z_n| ≥ 2$ is the escape condition. In our implementation, this is done via the _hue_ parameter in the [HSL color model](https://en.wikipedia.org/wiki/HSL_and_HSV) for non-grayscale images, and the _lightness_ parameter for grayscale images.
 
 ### And how does it leverage Goroutines?
 Each row of the image is added as a job to a [channel](https://go.dev/doc/effective_go#channels). These jobs are distributed using [goroutines](https://go.dev/doc/effective_go#goroutines) (lightweight threads managed by the Go runtime) that are spun off by consuming from the channel until it's empty.

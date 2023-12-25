@@ -28,6 +28,7 @@ func parseImageConfigArgs() {
 	hueOffsetPtr := flag.Float64("hue", 0.0, "The hsl hue offset in the range [0, 1)")
 	mixingPtr := flag.Bool("mixing", true, "Use linear color mixing.")
 	insideBlackPtr := flag.Bool("black", true, "Paint area inside in black.")
+	grayscalePtr := flag.Bool("grayscale", false, "Paint image in grayscale.")
 
 	flag.Parse()
 
@@ -39,6 +40,7 @@ func parseImageConfigArgs() {
 		HueOffset:   *hueOffsetPtr,
 		Mixing:      *mixingPtr,
 		InsideBlack: *insideBlackPtr,
+		Grayscale:   *grayscalePtr,
 		RndGlobal:   uint64(time.Now().UnixNano()),
 	}
 }

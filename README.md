@@ -14,6 +14,7 @@ go build
 ```
 
 ## Examples
+#### Colored
 <table>
   <tr>
     <td>
@@ -29,6 +30,26 @@ go build
     </td>
     <td>
       <img src="/examples/ex4-zoom-1e11.png" width="350">
+    </td>
+  </tr>
+</table>
+
+#### Grayscale
+<table>
+  <tr>
+    <td>
+      <img src="/examples/ex6-gray-7.png" width="350">
+    </td>
+    <td>
+      <img src="/examples/ex7-gray-8.png" width="350">
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <img src="/examples/ex8-gray-9.png" width="350">
+    </td>
+    <td>
+      <img src="/examples/ex9-gray-48.png" width="350">
     </td>
   </tr>
 </table>

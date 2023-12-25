@@ -25,9 +25,10 @@ func parseImageConfigArgs() {
 	imgHeightPtr := flag.Int("height", 1024, "The height of the image in pixels.")
 	samplesPtr := flag.Int("samples", 50, "The number of samples")
 	maxIterPtr := flag.Int("iter", 500, "The max. number of iterations.")
-	hueOffsetPtr := flag.Float64("hue", 0.0, "The hsl hue offset in the range [0, 1)")
+	OffsetPtr := flag.Float64("offset", 0.0, "The HSL offset in the range [0, 1)")
 	mixingPtr := flag.Bool("mixing", true, "Use linear color mixing.")
 	insideBlackPtr := flag.Bool("black", true, "Paint area inside in black.")
+	grayscalePtr := flag.Bool("grayscale", false, "Paint image in grayscale.")
 
 	flag.Parse()
 
@@ -36,9 +37,10 @@ func parseImageConfigArgs() {
 		Height:      *imgHeightPtr,
 		Samples:     *samplesPtr,
 		MaxIter:     *maxIterPtr,
-		HueOffset:   *hueOffsetPtr,
+		Offset:      *OffsetPtr,
 		Mixing:      *mixingPtr,
 		InsideBlack: *insideBlackPtr,
+		Grayscale:   *grayscalePtr,
 		RndGlobal:   uint64(time.Now().UnixNano()),
 	}
 }

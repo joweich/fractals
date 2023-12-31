@@ -23,7 +23,7 @@ func main() {
 func parseImageConfigArgs() {
 	imgWidthPtr := flag.Int("width", 1920, "The width of the image in pixels.")
 	imgHeightPtr := flag.Int("height", 1024, "The height of the image in pixels.")
-	samplesPtr := flag.Int("samples", 50, "The number of samples")
+	samplesPtr := flag.Int("samples", 5, "The number of samples")
 	maxIterPtr := flag.Int("iter", 500, "The max. number of iterations.")
 	OffsetPtr := flag.Float64("offset", 0.0, "The HSL offset in the range [0, 1)")
 	mixingPtr := flag.Bool("mixing", true, "Use linear color mixing.")

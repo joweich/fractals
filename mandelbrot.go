@@ -30,12 +30,12 @@ func getColorFromMandelbrot(isUnlimited bool, magnitude float64, iterations int)
 func runMandelbrot(c complex128) (bool, float64, int) {
 	var z complex128
 
-	for i := 0; i < imgConf.MaxIter; i++ {
+	for i := 1; i < imgConf.MaxIter; i++ {
+		z = z*z + c
 		magnitude := cmplx.Abs(z)
 		if magnitude > 2 {
 			return true, magnitude, i
 		}
-		z = z*z + c
 	}
 	return false, 0, 0
 }

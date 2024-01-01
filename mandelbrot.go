@@ -3,7 +3,6 @@ package main
 import (
 	"image/color"
 	"math"
-	"math/cmplx"
 )
 
 func getColorForComplexNr(c complex128) color.RGBA {
@@ -32,9 +31,9 @@ func runMandelbrot(c complex128) (bool, float64, int) {
 
 	for i := 1; i < imgConf.MaxIter; i++ {
 		z = z*z + c
-		magnitude := cmplx.Abs(z)
-		if magnitude > 2 {
-			return true, magnitude, i
+		magnitudeSquared := real(z)*real(z) + imag(z)*imag(z)
+		if magnitudeSquared > 4 {
+			return true, math.Sqrt(magnitudeSquared), i
 		}
 	}
 	return false, 0, 0

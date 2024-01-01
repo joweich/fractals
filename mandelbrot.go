@@ -6,8 +6,8 @@ import (
 	"math/cmplx"
 )
 
-func getColorForComplexNr(z0 complex128) color.RGBA {
-	return getColorFromMandelbrot(runMandelbrot(z0))
+func getColorForComplexNr(c complex128) color.RGBA {
+	return getColorFromMandelbrot(runMandelbrot(c))
 }
 
 func getColorFromMandelbrot(isUnlimited bool, magnitude float64, iterations int) color.RGBA {
@@ -27,7 +27,7 @@ func getColorFromMandelbrot(isUnlimited bool, magnitude float64, iterations int)
 	}
 }
 
-func runMandelbrot(z0 complex128) (bool, float64, int) {
+func runMandelbrot(c complex128) (bool, float64, int) {
 	var z complex128
 
 	for i := 0; i < imgConf.MaxIter; i++ {
@@ -35,7 +35,7 @@ func runMandelbrot(z0 complex128) (bool, float64, int) {
 		if magnitude > 2 {
 			return true, magnitude, i
 		}
-		z = z*z + z0
+		z = z*z + c
 	}
 	return false, 0, 0
 }

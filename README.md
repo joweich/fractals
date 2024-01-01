@@ -56,14 +56,14 @@ go build
 
 ## About the Algorithm
 ### The Math in a Nutshell
-The Mandelbrot set is defined as the set of complex numbers $z_0$ for which the series 
+The Mandelbrot set is defined as the set of complex numbers $c$ for which the series 
 
-$$z_{n+1} = z²_n + z_0$$
+$$z_{n+1} = z²_n + c$$
 
-is bounded for all $n ≥ 0$. In other words, $z_0$ is part of the Mandelbrot set if $z_n$ does not approach infinity. This is equivalent to the  magnitude $|z_n| ≤ 2$ for all $n ≥ 0$.
+is bounded for all $n ≥ 0$. In other words, $c$ is part of the Mandelbrot set if $z_n$ does not approach infinity. This is equivalent to the  magnitude $|z_n| ≤ 2$ for all $n ≥ 0$.
 
 ### But how is this visualized in a colorful image?
-The image is interpreted as complex plane, i.e. the horizontal axis being the real part and the vertical axis representing the complex part of $z_0$. 
+The image is interpreted as complex plane, i.e. the horizontal axis being the real part and the vertical axis representing the complex part of $c$. 
 
 The colors are determined by the so-called **naïve escape time algorithm**. It's as simple as that: A pixel is painted in a predefined color (often black) if it's in the set and will have another color if it's not. The color is determined by the number of iterations $n$ needed for $z_n$ to exceed $|z_n| = 2$. This $n$ is the escape time, and $|z_n| ≥ 2$ is the escape condition. In our implementation, this is done via the _hue_ parameter in the [HSL color model](https://en.wikipedia.org/wiki/HSL_and_HSV) for non-grayscale images, and the _lightness_ parameter for grayscale images.
 

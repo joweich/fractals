@@ -112,7 +112,7 @@ func BenchmarkGetColorFromMandelbrotUnlimited(b *testing.B) {
 func BenchmarkRunMandelbrot(b *testing.B) {
 	benchmarkConfig := getBenchmarkConfig()
 
-	z0 := complex(-0.5, 0) // (-0.5, 0) is part of the mandelbrot set, i.e. zn is bounded for all zn
+	c := complex(-0.5, 0) // (-0.5, 0) is part of the mandelbrot set, i.e. zn is bounded for all zn
 	for _, maxIter := range benchmarkConfig.MaxIterValues {
 		testId := fmt.Sprintf("MaxIter_%d", maxIter)
 		b.Run(testId, func(subB *testing.B) {
@@ -120,7 +120,7 @@ func BenchmarkRunMandelbrot(b *testing.B) {
 			subB.ResetTimer()
 
 			for i := 0; i < subB.N; i++ {
-				runMandelbrot(z0)
+				runMandelbrot(c)
 			}
 		})
 	}

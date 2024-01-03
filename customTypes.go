@@ -21,3 +21,9 @@ type ImageConfig struct {
 	Grayscale   bool
 	RndGlobal   uint64
 }
+
+type MandelbrotIterResult struct {
+	IsUnlimited bool
+	Magnitude   float64
+	Iterations  int
+}

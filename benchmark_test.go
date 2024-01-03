@@ -105,7 +105,12 @@ func BenchmarkGetColorFromMandelbrotUnlimited(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		getColorFromMandelbrot(true, magnitude, iterations)
+		iterResult := MandelbrotIterResult{
+			IsUnlimited: true,
+			Magnitude:   magnitude,
+			Iterations:  iterations,
+		}
+		getColorFromMandelbrot(iterResult)
 	}
 }
 

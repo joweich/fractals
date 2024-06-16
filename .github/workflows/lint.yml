@@ -23,7 +23,7 @@ jobs:
         with:
           go-version: ${{ matrix.go-version }}
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v5
+        uses: golangci/golangci-lint-action@v6
         with:
           version: v1.54
           args: --verbose

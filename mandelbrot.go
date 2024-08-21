@@ -9,10 +9,10 @@ func getColorForComplexNr(c complex128) color.RGBA {
 	return getColorFromMandelbrot(runMandelbrot(c))
 }
 
-func getColorFromMandelbrot(isUnlimited bool, magnitude float64, iterations int) color.RGBA {
-	if isUnlimited {
+func getColorFromMandelbrot(iterResult MandelbrotIterResult) color.RGBA {
+	if iterResult.IsUnlimited {
 		// adapted http://linas.org/art-gallery/escape/escape.html
-		smooth := (float64(iterations) + 1 - math.Log(math.Log(magnitude))/math.Log(2)) / float64(imgConf.MaxIter)
+		smooth := (float64(iterResult.Iterations) + 1 - math.Log(math.Log(iterResult.Magnitude))/math.Log(2)) / float64(imgConf.MaxIter)
 		offset := smooth + imgConf.Offset
 		mod := math.Mod(offset, 1)
 		if imgConf.Grayscale {
@@ -26,15 +26,21 @@ func getColorFromMandelbrot(isUnlimited bool, magnitude float64, iterations int)
 	}
 }
 
-func runMandelbrot(c complex128) (bool, float64, int) {
+func runMandelbrot(c complex128) MandelbrotIterResult {
 	var z complex128
 
 	for i := 1; i < imgConf.MaxIter; i++ {
 		z = z*z + c
 		magnitudeSquared := real(z)*real(z) + imag(z)*imag(z)
 		if magnitudeSquared > 4 {
-			return true, math.Sqrt(magnitudeSquared), i
+			return MandelbrotIterResult{
+				IsUnlimited: true,
+				Magnitude:   math.Sqrt(magnitudeSquared),
+				Iterations:  i,
+			}
 		}
 	}
-	return false, 0, 0
+	return MandelbrotIterResult{
+		IsUnlimited: false,
+	}
 }
